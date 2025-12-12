@@ -5,81 +5,225 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TERMINAL BLOG</title>
     <style>
+        /* === 基础样式 === */
         body { 
             background-color: #000; 
             color: #ccc; 
-            font-family: "Consolas", monospace; 
+            font-family: "Consolas", "Courier New", monospace; 
             padding: 20px;
-            
-            /* 这里已经帮您改大了字体 */
-            font-size: 20px; 
+            font-size: 18px; /* 电脑端字体 */
+            max-width: 1000px;
+            margin: 0 auto; /* 居中显示 */
         }
-        .blog-line { display: flex; margin-bottom: 8px; border-bottom: 1px solid #111; padding-bottom: 5px; }
         
-        /* 字体变大后，时间栏也需要宽一点，不然会对不齐 */
-        .time { color: #666; min-width: 210px; } 
+        /* 博客列表容器 */
+        #blog-container {
+            min-height: 500px; /* 防止翻页时页面乱跳 */
+        }
+
+        .blog-line { 
+            display: flex; 
+            margin-bottom: 25px; 
+            border-bottom: 1px dashed #333; 
+            padding-bottom: 15px; 
+            animation: fadeIn 0.3s ease; /* 翻页时的淡入动画 */
+        }
         
-        .content { flex-grow: 1; margin-right: 15px; white-space: pre-wrap; }
-        .tag { color: #444; border: 1px solid #222; padding: 0 4px; border-radius: 2px; font-size: 0.8em; height: fit-content; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .time { color: #666; min-width: 200px; font-weight: bold; }
+        
+        .content { 
+            flex-grow: 1; 
+            margin-right: 15px; 
+            white-space: pre-wrap; 
+            line-height: 1.6;
+        }
+        
+        /* 图片样式 */
+        .content img {
+            max-width: 100%;
+            border: 2px solid #333;
+            margin-top: 10px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .tag { 
+            color: #444; 
+            border: 1px solid #222; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-size: 0.8em; 
+            height: fit-content; 
+            white-space: nowrap;
+        }
         
         /* 颜色定义 */
-        .w { color: #ddd; } /* 白 */
-        .r { color: #ff3333; } /* 红 */
-        .b { color: #4444ff; } /* 蓝 */
-        .g { color: #00ff00; } /* 绿 */
+        .w { color: #ddd; }
+        .r { color: #ff5555; }
+        .b { color: #5555ff; }
+        .g { color: #00ff00; }
 
-        /* ============================ */
-        /* 以下是手机端适配代码      */
-        /* ============================ */
+        /* === 翻页控制器样式 (核心新增) === */
+        #pagination {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .page-btn {
+            background: #111;
+            color: #00ff00;
+            border: 1px solid #333;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover { background: #222; border-color: #00ff00; }
+        .page-btn:active { transform: translateY(2px); }
+        .page-btn.disabled { 
+            color: #444; 
+            border-color: #222; 
+            cursor: not-allowed; 
+            background: #000;
+        }
+
+        #page-info { color: #666; }
+
+        /* === 手机端适配 === */
         @media (max-width: 600px) {
-            body {
-                padding: 10px; /* 手机屏幕小，边距改小一点 */
-            }
-            .blog-line {
-                flex-direction: column; /* 变成了“垂直排列” */
-                align-items: flex-start;
-                margin-bottom: 15px; /* 手机上行间距大一点 */
-            }
-            .time {
-                min-width: auto; /* 取消固定宽度 */
-                margin-bottom: 4px; /* 时间和正文拉开一点点距离 */
-                font-size: 0.8em; /* 手机上时间字体稍微小一点，好看 */
-                color: #555;
-            }
-            .content {
-                margin-right: 0;
-                width: 100%; /* 文字占满全宽 */
-            }
+            body { padding: 10px; font-size: 16px; }
+            .blog-line { flex-direction: column; align-items: flex-start; }
+            .time { margin-bottom: 5px; font-size: 0.9em; color: #555; }
+            .content { width: 100%; margin-right: 0; }
+            .tag { margin-top: 5px; align-self: flex-start; }
+            
+            #pagination { font-size: 0.9em; }
+            .page-btn { padding: 8px 12px; }
         }
-        /* === 图片样式：防止图片太大撑破手机屏幕 === */
-        .content img {
-            max-width: 100%;      /* 宽度最大不超过屏幕 */
-            border: 2px solid #333; /*以此边框致敬复古终端 */
-            margin-top: 10px;     /* 和文字拉开点距离 */
-            display: block;       /* 让图片独占一行 */
-            opacity: 0.9;         /* 稍微透明一点点，更有极客味 */
-        }
-
     </style>
 </head>
 <body>
+
     <div id="blog-container"></div>
 
+    <div id="pagination">
+        <button id="btn-prev" class="page-btn" onclick="changePage(-1)">[ < PREV ]</button>
+        <span id="page-info">PAGE 1 / 1</span>
+        <button id="btn-next" class="page-btn" onclick="changePage(1)">[ NEXT > ]</button>
+    </div>
+
     <script>
-        // 定义一个函数，用来把文章打印到屏幕上
+        // === 1. 配置区域 ===
+        const ITEMS_PER_PAGE = 5; // 这里设置每页显示几条博客！
+        
+        // === 2. 数据存储 ===
+        // 我们不再直接显示，而是把所有博客先存进这个数组
+        let allPosts = []; 
+        let currentPage = 1;
+
+        // 重写 add 函数：只存数据，不画图
         function add(time, text, color, tag) {
-            const container = document.getElementById('blog-container');
             if (!color) color = 'w';
-            const html = `
-            <div class="blog-line">
-                <span class="time">[${time}]</span>
-                <span class="content ${color}">${text}</span>
-                <span class="tag">${tag}</span>
-            </div>`;
-            container.insertAdjacentHTML('afterbegin', html);
+            allPosts.push({ time, text, color, tag });
         }
+
+        // === 3. 渲染逻辑 (核心) ===
+        function renderPosts() {
+            const container = document.getElementById('blog-container');
+            container.innerHTML = ''; // 先清空屏幕
+
+            // 既然 add 是按顺序 push 的，那么数组最后面的是最新的。
+            // 我们需要反转顺序显示吗？通常博客是“最新的在最上面”。
+            // 为了方便切片，我们在数据加载完后已经做了一次 reverse，这里直接切片即可。
+
+            // 计算这一页该显示数组里的哪几条 (Slice切片)
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const postsToShow = allPosts.slice(start, end);
+
+            // 生成 HTML
+            let htmlStr = '';
+            postsToShow.forEach(post => {
+                htmlStr += `
+                <div class="blog-line">
+                    <span class="time">[${post.time}]</span>
+                    <span class="content ${post.color}">${post.text}</span>
+                    <span class="tag">${post.tag}</span>
+                </div>`;
+            });
+            container.innerHTML = htmlStr;
+
+            // 更新翻页按钮状态
+            updatePaginationUI();
+            
+            // 每次翻页自动回到顶部
+            window.scrollTo(0, 0);
+        }
+
+        function updatePaginationUI() {
+            const totalPages = Math.ceil(allPosts.length / ITEMS_PER_PAGE);
+            document.getElementById('page-info').innerText = `PAGE ${currentPage} / ${totalPages || 1}`;
+
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+
+            // 处理上一页按钮
+            if (currentPage === 1) {
+                btnPrev.classList.add('disabled');
+                btnPrev.disabled = true;
+            } else {
+                btnPrev.classList.remove('disabled');
+                btnPrev.disabled = false;
+            }
+
+            // 处理下一页按钮
+            if (currentPage >= totalPages) {
+                btnNext.classList.add('disabled');
+                btnNext.disabled = true;
+            } else {
+                btnNext.classList.remove('disabled');
+                btnNext.disabled = false;
+            }
+        }
+
+        function changePage(step) {
+            const totalPages = Math.ceil(allPosts.length / ITEMS_PER_PAGE);
+            const newPage = currentPage + step;
+
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderPosts();
+            }
+        }
+        
+        // === 键盘翻页支持 (黑客喜欢用键盘) ===
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "ArrowLeft") changePage(-1); // 左箭头上一页
+            if (event.key === "ArrowRight") changePage(1); // 右箭头下一页
+        });
+
     </script>
 
     <script src="data.js"></script>
+    
+    <script>
+        // 数据加载完毕后执行
+        // 1. 因为 data.js 是按时间正序写的，我们要反转一下，让最新的在最前
+        allPosts.reverse();
+        // 2. 初始化显示第一页
+        renderPosts();
+    </script>
 </body>
 </html>
