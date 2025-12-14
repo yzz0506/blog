@@ -5,25 +5,33 @@ cd "$(dirname "$0")"
 
 clear
 echo "================================================="
-echo "           GitHub 同步终端"
+echo "           GitHub 同步终端 (安全版 v2.0)"
 echo "================================================="
 
-# 2. 先把云端的新变化拉下来 (比如刚才生成的 CNAME)
-#    这一步非常重要，防止冲突！
-echo "🔄 正在拉取云端更新..."
-git pull origin main
-
-# 3. 检查有没有要上传的东西
-if [ -z "$(git status --porcelain)" ]; then 
-  echo "✅ 本地没有变化，已经是最新状态。"
-  exit 0
+# 2. 【关键修改】先检查并在本地提交！
+if [ -n "$(git status --porcelain)" ]; then 
+  echo "💾 正在保存本地修改..."
+  git add .
+  git commit -m "Update: $(date '+%Y-%m-%d %H:%M')"
+else
+  echo "✅ 本地没有新修改，准备拉取..."
 fi
 
-# 4. 添加、提交、推送
-echo "📤 正在上传..."
-git add .
-git commit -m "Update: $(date '+%Y-%m-%d %H:%M')"
-git push origin main
+# 3. 拉取云端
+echo "🔄 正在与云端同步..."
+if git pull origin main; then
+    echo "✅ 同步完成"
+else
+    echo "❌ 拉取遇到冲突！请手动打开文件解决冲突。"
+    exit 1
+fi
 
-echo ""
-echo "✅ 发布成功！"
+# 4. 推送
+echo "📤 正在推送到 GitHub..."
+if git push origin main; then
+    echo ""
+    echo "🎉 发布成功！"
+else
+    echo ""
+    echo "❌ 推送失败，请检查网络或报错信息。"
+fi
