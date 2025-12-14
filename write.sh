@@ -1,6 +1,8 @@
 #!/bin/bash
 
 cd "$(dirname "$0")"
+echo "🔄 正在同步云端最新数据..."
+git pull origin main
 DATA_FILE="data.js"
 IMG_DIR="imgs"
 
