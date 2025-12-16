@@ -6,3 +6,4 @@ add("2025-12-13 20:04", "I'm fine.Drink water and take a breath.", "w", "#日常
 add("2025-12-14 06:25", "一系列乌龙，充了b站免流量套餐，但卡上没有通用流量只有套餐的定向流量，又充了流量包但优先级高于所有其他流量，那为什么不直接充流量包呢🙃，这就是手机卡太多的弊端，收验证码一个号，打电话和使用流量一个号，做事有一环没考虑到都是重大事故", "w", "#日常");
 add("2025-12-14 06:40", "Faze Clan gogogo!!!", "w", "#cs");
 add("2025-12-14 19:19", "You cant get up early if you sleep late.", "w", "#daily");add("2025-12-16 20:18", "Internet is necessary for me.If I disconnect the Internet for an hour,I will have adverse reactions.", "w", "#daily");
+add("2025-12-16 20:24", "I hate fat ppl.Most of these ppl are unhygienic and annoying.", "w", "#daily");
