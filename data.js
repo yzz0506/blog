@@ -2,9 +2,9 @@ add("2025-12-12 04:08", "手机端测试，这行字应该会自动换行", "w",
 add("2025-12-12 04:16", "测试测试测试测试测试！！！！", "w", "#test");
 add("2025-12-12 05:10", "预测faze和vitality会进入布达佩斯major决赛", "w", "#cs");
 add("2025-12-12 17:29", "test test test<br><img src='imgs/20251212172941_9884.jpg'>", "w", "#test");
-add("2025-12-13 20:04", "I'm fine.Drink water and take a breath.", "w", "#日常");
-add("2025-12-14 06:40", "Faze Clan gogogo!!!", "w", "#cs");
-add("2025-12-14 19:19", "You cant get up early if you sleep late.", "w", "#daily");
-add("2025-12-16 20:18", "Internet is necessary.If I disconnect the Internet for an hour,I will have adverse reactions.", "w", "#daily");
-add("2025-12-16 20:24", "Most of these ppl are unhygienic and annoying.So choose seats away from them in the library.", "w", "#daily");
+add("2025-12-13 20:04", "我很好。喝口水，深呼吸。", "w", "#日常");
+add("2025-12-14 06:40", "Faze Clan 加油加油加油！！！", "w", "#cs");
+add("2025-12-14 19:19", "熬夜之后是没法早起的。", "w", "#daily");
+add("2025-12-16 20:18", "网络是必需品。如果断网一小时，我会产生不良反应。", "w", "#daily");
+add("2025-12-16 20:24", "肥胖和不讲卫生存在某种联系，远离", "w", "#daily");
 add("2025-12-17 08:02", "状态：躯体过载，精神待机。决策：优先执行睡眠协议，拒绝一切成瘾性代偿。时间戳：启动前", "w", "#daily");
