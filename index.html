@@ -10,14 +10,11 @@
             background-color: #000; 
             color: #ccc; 
             font-family: "Consolas", "Courier New", monospace; 
-            /* 修改点 1：使用 vh 单位，让顶部间距随屏幕高度自动变大 */
-            /* 10vh 表示屏幕高度的 10%，大屏上会留出更多空隙，视觉更舒适 */
             padding: 10vh 20px 20px 20px; 
             font-size: 18px;
             max-width: 1000px;
             margin: 0 auto;
             overflow-x: hidden;
-            /* 保证最小高度，防止内容少时页面塌缩 */
             min-height: 100vh;
             box-sizing: border-box;
         }
@@ -37,54 +34,37 @@
             transition: opacity 0.5s ease;
         }
 
-        .typing-wrapper {
-            display: inline-block;
-        }
+        .typing-wrapper { display: inline-block; }
 
         #loader-text {
             display: block;
             white-space: nowrap;
             overflow: hidden;
-            border-right: 3px solid #00ff00; /* 模拟光标 */
+            border-right: 3px solid #00ff00; 
             color: #00ff00;
             font-size: 1.5em;
             width: 0;
-            /* 动画：打字(1.5s), 光标闪烁(0.7s), 整体淡出(0.5s) */
             animation: 
                 typing 1.5s steps(25, end) forwards,
                 blink-caret 0.7s step-end infinite,
                 fadeOutContent 0.5s 2.5s forwards;
         }
 
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00ff00; } }
+        @keyframes fadeOutContent { to { opacity: 0; } }
 
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: #00ff00; }
-        }
-
-        @keyframes fadeOutContent {
-            to { opacity: 0; }
-        }
-
-        /* === 主内容渐显样式 === */
+        /* === 主内容样式 === */
         #main-wrapper {
-            opacity: 0; /* 初始隐藏 */
+            opacity: 0; 
             transition: opacity 1.5s ease-in-out;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 80vh; /* 保证主容器撑开 */
+            min-height: 80vh;
         }
         
-        /* 博客列表容器 */
-        #blog-container {
-            /* 移除固定最小高度，改为 flex 自动填充 */
-            flex-grow: 1;
-        }
+        #blog-container { flex-grow: 1; }
 
         .blog-line { 
             display: flex; 
@@ -106,9 +86,13 @@
             margin-right: 15px; 
             white-space: pre-wrap; 
             line-height: 1.6;
+            overflow: hidden; /* 防止内容溢出 */
         }
         
-        .content img {
+        /* === 图片样式优化 (核心修改) === */
+        
+        /* 1. 单张大图（默认样式） */
+        .content > img {
             max-width: 100%;
             border: 2px solid #333;
             margin-top: 10px;
@@ -116,6 +100,58 @@
             opacity: 0.9;
         }
 
+        /* 2. 多图横向滚动容器 (Gallery Mode) */
+        .gallery {
+            display: flex;
+            flex-wrap: nowrap;          /* 强制不换行 */
+            overflow-x: auto;           /* 允许横向滚动 */
+            gap: 10px;                  /* 图片间距 */
+            margin-top: 10px;
+            padding: 10px 0;
+            background: rgba(255, 255, 255, 0.02); /* 极淡的背景区分区域 */
+            border: 1px solid #111;
+        }
+
+        /* 横向滚动条美化 */
+        .gallery::-webkit-scrollbar { height: 6px; }
+        .gallery::-webkit-scrollbar-track { background: #111; }
+        .gallery::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        .gallery::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .gallery img {
+            height: 180px;              /* 固定高度，非常关键，防止参差不齐 */
+            width: auto;                /* 宽度自适应 */
+            border: 1px solid #333;
+            flex-shrink: 0;             /* 防止图片被挤压 */
+            transition: opacity 0.2s;
+        }
+        .gallery img:hover { opacity: 1; border-color: #666; }
+
+        /* 3. 折叠/展开 (Details Mode) */
+        details {
+            margin-top: 10px;
+            border: 1px dashed #333;
+            padding: 8px;
+            background: #080808;
+        }
+        summary {
+            cursor: pointer;
+            color: #444;
+            font-weight: bold;
+            font-size: 0.9em;
+            outline: none;
+            user-select: none;
+        }
+        summary:hover { color: #ccc; }
+        /* 展开后的图片 */
+        details img {
+            max-width: 100%;
+            display: block;
+            margin-top: 10px;
+            border: 1px solid #333;
+        }
+
+        /* === 标签与颜色 === */
         .tag { 
             color: #444; 
             border: 1px solid #222; 
@@ -126,13 +162,12 @@
             white-space: nowrap;
         }
         
-        /* 颜色定义 */
         .w { color: #ddd; }
         .r { color: #ff5555; }
         .b { color: #5555ff; }
         .g { color: #00ff00; }
 
-        /* === 翻页控制器样式 === */
+        /* === 翻页控制器 === */
         #pagination {
             margin-top: 20px;
             padding-top: 20px;
@@ -180,12 +215,14 @@
 
         /* === 手机端适配 === */
         @media (max-width: 600px) {
-            /* 手机端保持较小的顶部间距 */
             body { padding: 60px 10px 10px 10px; font-size: 16px; }
             .blog-line { flex-direction: column; align-items: flex-start; }
             .time { margin-bottom: 5px; font-size: 0.9em; color: #555; }
             .content { width: 100%; margin-right: 0; }
             .tag { margin-top: 5px; align-self: flex-start; }
+            
+            /* 手机上图片稍微小一点 */
+            .gallery img { height: 140px; } 
         }
     </style>
 </head>
@@ -229,34 +266,29 @@
     </div>
 
     <script>
-        // 修改点 2：改为变量，初始值给 7，后续会自动计算
         let itemsPerPage = 7; 
         let allPosts = []; 
         let currentPage = 1;
 
-        // 修改点 3：新增计算函数，根据屏幕高度决定显示多少条
         function recalculateItemsPerPage() {
             const windowHeight = window.innerHeight;
-            // 预留空间：顶部Padding + 底部Footer + 分页器 + 间隙 (大约350px)
             const reservedSpace = 350; 
-            // 估算单条博客高度 (根据你的字体和间距估算，约90px)
             const estimatedItemHeight = 90; 
             
             let count = Math.floor((windowHeight - reservedSpace) / estimatedItemHeight);
-            
-            // 最小值保护：防止屏幕太矮时一条都不显示，最少显示4条
             if (count < 4) count = 4;
             
-            // 只有当数量发生变化时才更新并重新渲染
             if (itemsPerPage !== count) {
                 itemsPerPage = count;
-                return true; // 返回 true 表示需要重新渲染
+                return true;
             }
             return false;
         }
 
+        // 修改 add 函数，使其更灵活
         function add(time, text, color, tag) {
             if (!color) color = 'w';
+            // 支持 text 中包含 HTML 标签
             allPosts.push({ time, text, color, tag });
         }
 
@@ -264,7 +296,6 @@
             const container = document.getElementById('blog-container');
             container.innerHTML = ''; 
             
-            // 使用动态的 itemsPerPage
             const start = (currentPage - 1) * itemsPerPage;
             const end = start + itemsPerPage;
             const postsToShow = allPosts.slice(start, end);
@@ -284,13 +315,17 @@
 
         function updatePaginationUI() {
             const totalPages = Math.ceil(allPosts.length / itemsPerPage);
-            document.getElementById('page-info').innerText = `PAGE ${currentPage} / ${totalPages || 1}`;
+            const displayTotal = totalPages || 1;
+            document.getElementById('page-info').innerText = `PAGE ${currentPage} / ${displayTotal}`;
+            
             const btnPrev = document.getElementById('btn-prev');
             const btnNext = document.getElementById('btn-next');
+            
             btnPrev.disabled = (currentPage === 1);
             btnPrev.className = `page-btn ${currentPage === 1 ? 'disabled' : ''}`;
-            btnNext.disabled = (currentPage >= totalPages);
-            btnNext.className = `page-btn ${currentPage >= totalPages ? 'disabled' : ''}`;
+            
+            btnNext.disabled = (currentPage >= displayTotal);
+            btnNext.className = `page-btn ${currentPage >= displayTotal ? 'disabled' : ''}`;
         }
 
         function changePage(step) {
@@ -318,25 +353,25 @@
     <script src="data.js"></script>
     
     <script>
-        allPosts.reverse();
+        // 确保 data.js 加载后再执行
+        // 如果 data.js 里的 add() 是同步执行的，这里直接 reverse 和渲染即可
+        if (allPosts.length > 0) {
+            allPosts.reverse();
+        }
 
-        // 初始化：计算一次适合的条数，然后渲染
         recalculateItemsPerPage();
         renderPosts();
 
-        // 监听窗口大小变化（防抖处理）
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                // 如果计算出的条数变了，才重新渲染
                 if (recalculateItemsPerPage()) {
-                    // 重新计算后，如果当前页码超出了新的总页数，重置为第1页
                     const totalPages = Math.ceil(allPosts.length / itemsPerPage);
                     if (currentPage > totalPages) currentPage = 1;
                     renderPosts();
                 }
-            }, 100); // 100毫秒延迟，避免拖动时频繁计算
+            }, 100); 
         });
     </script>
 </body>

@@ -11,7 +11,7 @@ mkdir -p "$IMG_DIR"
 
 clear
 echo "================================================="
-echo "           MAC 博客写作终端 v3.0 (无限图床版)"
+echo "           MAC 博客写作终端 v3.1 (画廊版)"
 echo "================================================="
 echo ""
 
@@ -25,12 +25,16 @@ fi
 # 防崩坏处理
 content=${content//\"/\'}
 
-# 2. 图片处理 (循环版)
+# 2. 图片处理 (缓冲版)
 echo ""
 echo "-------------------------------------------------"
 echo "提示: 请一张一张地拖入图片。"
 echo "如果不加图了，直接按回车即可。"
 echo "-------------------------------------------------"
+
+# 初始化图片缓冲区和计数器
+img_buffer=""
+img_count=0
 
 while true; do
     read -e -p "[图片] 拖入文件 (直接回车结束): " raw_img_path
@@ -40,17 +44,13 @@ while true; do
         break
     fi
 
-    # 清理路径 (处理拖拽产生的单引号和转义空格)
-    # 这一步是为了让脚本能读懂 Mac 终端的路径格式
+    # 清理路径
     img_path=$(echo "$raw_img_path" | sed "s/'//g" | sed 's/\\ / /g')
-    
-    # 去除首尾空格
     img_path=$(echo "$img_path" | xargs)
 
     if [ -f "$img_path" ]; then
-        # 生成新文件名 (时间戳+随机秒数防止重名)
+        # 生成新文件名
         extension="${img_path##*.}"
-        # 使用 date +%N (纳秒) 甚至 $RANDOM 来确保两张图即使同一秒上传也不重名
         new_filename="$(date +%Y%m%d%H%M%S)_$RANDOM.$extension"
         
         # 复制
@@ -58,12 +58,23 @@ while true; do
         
         echo "✅ 已添加: $new_filename"
         
-        # 拼接 HTML 代码 (两张图之间加个换行)
-        content="$content<br><img src='$IMG_DIR/$new_filename'>"
+        # 修改点：暂存图片标签，不加 <br>，暂时不写入 content
+        img_buffer="$img_buffer<img src='$IMG_DIR/$new_filename'>"
+        ((img_count++))
     else
         echo "⚠️  刚才那个不是有效文件，已跳过。"
     fi
 done
+
+# === 核心修改逻辑 ===
+if [ $img_count -eq 1 ]; then
+    # 如果只有一张图，按旧方式（换行+大图）
+    content="$content<br>$img_buffer"
+elif [ $img_count -gt 1 ]; then
+    # 如果有多张图，包裹进 gallery 容器（横向滚动）
+    content="$content<div class='gallery'>$img_buffer</div>"
+fi
+# ==================
 
 echo "-------------------------------------------------"
 
