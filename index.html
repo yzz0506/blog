@@ -3,231 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>blog.yuk1no.com</title>
+    <title>Notebook</title>
     <style>
-        /* === 基础样式 === */
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --text-main: #e5e5e5;
+            --text-dim: #737373;
+            --accent: #3b82f6; 
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { box-sizing: border-box; }
         body { 
-            background-color: #000; 
-            color: #ccc; 
-            font-family: "Consolas", "Courier New", monospace; 
-            padding: 8vh 20px 20px 20px; /* 稍微减小顶部留白 */
-            font-size: 18px;
-            max-width: 1000px;
-            margin: 0 auto;
-            overflow-x: hidden;
-            min-height: 100vh;
-            box-sizing: border-box;
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            font-family: -apple-system, system-ui, sans-serif; 
+            line-height: 1.7;
+            margin: 0;
+            padding: 60px 20px;
         }
 
-        /* === 加载动画 === */
-        #loader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-        .typing-wrapper { display: inline-block; }
-        #loader-text {
-            display: block; white-space: nowrap; overflow: hidden;
-            border-right: 3px solid #00ff00; color: #00ff00;
-            font-size: 1.5em; width: 0;
-            animation: typing 1.5s steps(25, end) forwards, blink-caret 0.7s step-end infinite, fadeOutContent 0.5s 2.5s forwards;
-        }
-        @keyframes typing { from { width: 0 } to { width: 100% } }
-        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00ff00; } }
-        @keyframes fadeOutContent { to { opacity: 0; } }
-
-        /* === 主内容 === */
         #main-wrapper {
-            opacity: 0; transition: opacity 1.5s ease-in-out;
-            display: flex; flex-direction: column; justify-content: space-between;
-            min-height: 85vh;
+            max-width: 680px; 
+            margin: 0 auto;
+            opacity: 0; /* 初始透明 */
+            transition: opacity 0.8s ease;
         }
-        
-        #blog-container { flex-grow: 1; }
 
-        .blog-line { 
-            display: flex; margin-bottom: 25px; 
-            border-bottom: 1px dashed #333; padding-bottom: 15px; 
-            animation: fadeIn 0.3s ease;
+        .post-card { 
+            margin-bottom: 80px; 
+            animation: slideUp 0.6s ease forwards;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .time { color: #666; min-width: 200px; font-weight: bold; }
-        .content { flex-grow: 1; margin-right: 15px; white-space: pre-wrap; line-height: 1.6; overflow: hidden; }
-        
-        /* 图片样式 */
-        .content > img { max-width: 100%; border: 2px solid #333; margin-top: 10px; display: block; opacity: 0.9; }
-        
-        /* 画廊样式 */
-        .gallery {
-            display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 10px;
-            margin-top: 10px; padding: 10px 0;
-            background: rgba(255, 255, 255, 0.02); border: 1px solid #111;
-        }
-        .gallery::-webkit-scrollbar { height: 6px; }
-        .gallery::-webkit-scrollbar-track { background: #111; }
-        .gallery::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-        .gallery img { height: 180px; width: auto; border: 1px solid #333; flex-shrink: 0; transition: opacity 0.2s; }
-        .gallery img:hover { opacity: 1; border-color: #666; }
-
-        /* 折叠样式 */
-        details { margin-top: 10px; border: 1px dashed #333; padding: 8px; background: #080808; }
-        summary { cursor: pointer; color: #444; font-weight: bold; font-size: 0.9em; outline: none; user-select: none; }
-        summary:hover { color: #ccc; }
-        details img { max-width: 100%; display: block; margin-top: 10px; border: 1px solid #333; }
-
-        /* 标签颜色 */
-        .tag { color: #444; border: 1px solid #222; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; height: fit-content; white-space: nowrap; }
-        .w { color: #ddd; } .r { color: #ff5555; } .b { color: #5555ff; } .g { color: #00ff00; }
-
-        /* === 分页器 === */
-        #pagination {
-            margin-top: 10px; padding-top: 10px; border-top: 2px solid #333;
-            display: flex; justify-content: space-between; align-items: center;
-            user-select: none;
-        }
-        .page-btn { background: #111; color: #00ff00; border: 1px solid #333; padding: 8px 16px; cursor: pointer; font-family: inherit; font-weight: bold; transition: all 0.2s; }
-        .page-btn:hover { background: #222; border-color: #00ff00; }
-        .page-btn:active { transform: translateY(2px); }
-        .page-btn.disabled { color: #444; border-color: #222; cursor: not-allowed; background: #000; }
-        #page-info { color: #666; font-size: 0.9em; }
-
-        /* === 评论区控制条 (新功能) === */
-        #comment-trigger {
-            margin-top: 20px;
-            border: 1px dashed #333;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            color: #555;
-            transition: all 0.3s;
-            background: #050505;
-        }
-        #comment-trigger:hover {
-            border-color: #00ff00;
-            color: #00ff00;
-            background: #000;
-        }
-        #comment-section {
-            display: none; /* 默认隐藏 */
-            margin-top: 20px;
-            animation: slideDown 0.5s ease;
-        }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        footer { margin-top: 30px; padding-top: 10px; border-top: 1px dashed #333; text-align: center; color: #555; font-size: 0.8em; padding-bottom: 20px; }
-        footer a { color: #777; text-decoration: none; }
-        footer a:hover { color: #aaa; text-decoration: underline; }
+        .meta { display: flex; gap: 15px; font-family: monospace; font-size: 13px; margin-bottom: 12px; }
+        .time { color: var(--text-dim); }
+        .tag { color: var(--accent); font-weight: 600; }
+        .content { font-size: 17px; white-space: pre-wrap; word-wrap: break-word; }
+        .content img { max-width: 100%; border-radius: 8px; margin-top: 15px; border: 1px solid var(--border); }
+        
+        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; }
+        .gallery img { height: 200px; width: 100%; object-fit: cover; margin-top:0; }
 
-        @media (max-width: 600px) {
-            body { padding: 60px 10px 10px 10px; font-size: 16px; }
-            .blog-line { flex-direction: column; align-items: flex-start; }
-            .time { margin-bottom: 5px; font-size: 0.9em; color: #555; }
-            .content { width: 100%; margin-right: 0; }
-            .gallery img { height: 140px; }
-        }
+        #pagination { margin-top: 80px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 30px; }
+        .page-btn { background: none; border: 1px solid var(--border); color: var(--text-main); padding: 8px 20px; border-radius: 6px; cursor: pointer; }
+        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        footer { margin-top: 100px; text-align: center; font-size: 12px; color: var(--text-dim); }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="typing-wrapper">
-            <div id="loader-text">CONNECTING TO SYSTEM...</div>
-        </div>
-    </div>
+    <script>
+        // 1. 【关键】必须先定义数据结构和 add 函数
+        let allPosts = [];
+        function add(time, text, color, tag) {
+            allPosts.push({ time, text, color, tag });
+        }
+    </script>
+
+    <script src="data.js"></script>
 
     <div id="main-wrapper">
         <div id="blog-container"></div>
-
         <div id="pagination">
-            <button id="btn-prev" class="page-btn" onclick="changePage(-1)">[ < PREV ]</button>
-            <span id="page-info">PAGE 1 / 1</span>
-            <button id="btn-next" class="page-btn" onclick="changePage(1)">[ NEXT > ]</button>
+            <button id="btn-prev" class="page-btn" onclick="changePage(-1)">← Older</button>
+            <span id="page-info" style="color:var(--text-dim); font-size: 13px;"></span>
+            <button id="btn-next" class="page-btn" onclick="changePage(1)">Newer →</button>
         </div>
-
-        <div id="comment-trigger" onclick="toggleComments()">
-            [ > OPEN COMMS CHANNEL (COMMENTS) ]
-        </div>
-
-        <div id="comment-section">
-            <script src="https://giscus.app/client.js"
-                    data-repo="bygzby/blog"
-                    data-repo-id="R_kgDOQnGv1A"
-                    data-category="General"
-                    data-category-id="DIC_kwDOQnGv1M4C0FQZ"
-                    data-mapping="pathname"
-                    data-strict="0"
-                    data-reactions-enabled="1"
-                    data-emit-metadata="0"
-                    data-input-position="bottom"
-                    data-theme="dark"
-                    data-lang="zh-CN"
-                    crossorigin="anonymous"
-                    async>
-            </script>
-        </div>
-
-        <footer>
-            <p>Email: <a href="mailto:contact@yuk1no.com">contact@yuk1no.com</a></p>
-            <p>© 2025 TERMINAL BLOG. All systems operational.</p>
-        </footer>
+        <footer><p>© 2026. Keep Writing.</p></footer>
     </div>
 
     <script>
-        let itemsPerPage = 7; 
-        let allPosts = []; 
+        // 3. 渲染逻辑
         let currentPage = 1;
-
-        function recalculateItemsPerPage() {
-            const windowHeight = window.innerHeight;
-            
-            // 修改点：大大减少预留空间
-            // 之前是 350，现在改为 240，因为评论区默认折叠了，不需要预留那么大
-            const reservedSpace = 240; 
-            
-            const estimatedItemHeight = 90; 
-            let count = Math.floor((windowHeight - reservedSpace) / estimatedItemHeight);
-            
-            // 最小值保护：最少显示 5 条
-            if (count < 5) count = 5;
-            
-            if (itemsPerPage !== count) {
-                itemsPerPage = count;
-                return true;
-            }
-            return false;
-        }
-
-        function toggleComments() {
-            const section = document.getElementById('comment-section');
-            const trigger = document.getElementById('comment-trigger');
-            if (section.style.display === 'none' || section.style.display === '') {
-                section.style.display = 'block';
-                trigger.innerText = "[ x CLOSE COMMS CHANNEL ]";
-                trigger.style.color = "#ff5555";
-                trigger.style.borderColor = "#ff5555";
-                // 展开后平滑滚动到底部
-                setTimeout(() => {
-                    section.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-            } else {
-                section.style.display = 'none';
-                trigger.innerText = "[ > OPEN COMMS CHANNEL (COMMENTS) ]";
-                trigger.style.color = "#555";
-                trigger.style.borderColor = "#333";
-            }
-        }
-
-        function add(time, text, color, tag) {
-            if (!color) color = 'w';
-            allPosts.push({ time, text, color, tag });
-        }
+        const itemsPerPage = 8;
 
         function renderPosts() {
             const container = document.getElementById('blog-container');
@@ -237,74 +92,44 @@
             const end = start + itemsPerPage;
             const postsToShow = allPosts.slice(start, end);
 
-            let htmlStr = '';
-            postsToShow.forEach(post => {
-                htmlStr += `
-                <div class="blog-line">
-                    <span class="time">[${post.time}]</span>
-                    <span class="content ${post.color}">${post.text}</span>
-                    <span class="tag">${post.tag}</span>
-                </div>`;
-            });
-            container.innerHTML = htmlStr;
-            updatePaginationUI();
-        }
+            if (postsToShow.length === 0) {
+                container.innerHTML = '<div style="color:gray;">还没有内容哦...</div>';
+            }
 
-        function updatePaginationUI() {
+            postsToShow.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.innerHTML = `
+                    <div class="meta">
+                        <span class="tag">${post.tag || '#Normal'}</span>
+                        <span class="time">${post.time}</span>
+                    </div>
+                    <div class="content">${post.text}</div>
+                `;
+                container.appendChild(card);
+            });
+
             const totalPages = Math.ceil(allPosts.length / itemsPerPage);
-            const displayTotal = totalPages || 1;
-            document.getElementById('page-info').innerText = `PAGE ${currentPage} / ${displayTotal}`;
-            
-            const btnPrev = document.getElementById('btn-prev');
-            const btnNext = document.getElementById('btn-next');
-            btnPrev.disabled = (currentPage === 1);
-            btnPrev.className = `page-btn ${currentPage === 1 ? 'disabled' : ''}`;
-            btnNext.disabled = (currentPage >= displayTotal);
-            btnNext.className = `page-btn ${currentPage >= displayTotal ? 'disabled' : ''}`;
+            document.getElementById('page-info').innerText = `${currentPage} / ${totalPages || 1}`;
+            document.getElementById('btn-prev').disabled = (currentPage === 1);
+            document.getElementById('btn-next').disabled = (currentPage >= totalPages || totalPages === 0);
         }
 
         function changePage(step) {
-            const totalPages = Math.ceil(allPosts.length / itemsPerPage);
-            if (currentPage + step >= 1 && currentPage + step <= totalPages) {
-                currentPage += step;
-                renderPosts();
-                window.scrollTo(0, 0);
-            }
-        }
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key === "ArrowLeft") changePage(-1); 
-            if (e.key === "ArrowRight") changePage(1); 
-        });
-
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('main-wrapper').style.opacity = '1';
-            }, 3000); 
-        });
-    </script>
-
-    <script src="data.js"></script>
-    
-    <script>
-        if (allPosts.length > 0) {
-            allPosts.reverse();
+            currentPage += step;
+            renderPosts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        recalculateItemsPerPage();
-        renderPosts();
-
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                if (recalculateItemsPerPage()) {
-                    const totalPages = Math.ceil(allPosts.length / itemsPerPage);
-                    if (currentPage > totalPages) currentPage = 1;
-                    renderPosts();
-                }
-            }, 100); 
+        // 初始化显示
+        window.addEventListener('DOMContentLoaded', () => {
+            // 如果数据不是倒序的，先倒序（让最新的在前面）
+            // 注意：如果你的 data.js 本来就是最新的在最下面，就需要 reverse
+            if (allPosts.length > 0) allPosts.reverse(); 
+            
+            renderPosts();
+            // 显示页面
+            document.getElementById('main-wrapper').style.opacity = '1';
         });
     </script>
 </body>

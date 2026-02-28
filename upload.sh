@@ -37,7 +37,7 @@ echo "📤 正在推送到 GitHub..."
 if git push origin main; then
     echo ""
     echo "🎉 恭喜！博客已成功发布到线上。"
-    echo "🔗 访问地址: https://blog.yuk1no.com (可能需要几分钟缓存刷新)"
+    echo "🔗 访问地址: https://bygzby.github.io/blog (可能需要几分钟缓存刷新)"
 else
     echo ""
     echo "❌ 推送失败，请检查网络设置。"
