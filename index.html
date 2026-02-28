@@ -7,7 +7,6 @@
     <style>
         :root {
             --bg: #0a0a0a;
-            --card-bg: #141414;
             --text-main: #e5e5e5;
             --text-dim: #737373;
             --accent: #3b82f6; 
@@ -27,7 +26,7 @@
         #main-wrapper {
             max-width: 680px; 
             margin: 0 auto;
-            opacity: 0; /* 初始透明 */
+            opacity: 0;
             transition: opacity 0.8s ease;
         }
 
@@ -44,9 +43,11 @@
         .meta { display: flex; gap: 15px; font-family: monospace; font-size: 13px; margin-bottom: 12px; }
         .time { color: var(--text-dim); }
         .tag { color: var(--accent); font-weight: 600; }
+        
         .content { font-size: 17px; white-space: pre-wrap; word-wrap: break-word; }
         .content img { max-width: 100%; border-radius: 8px; margin-top: 15px; border: 1px solid var(--border); }
         
+        /* 画廊模式 */
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; }
         .gallery img { height: 200px; width: 100%; object-fit: cover; margin-top:0; }
 
@@ -60,7 +61,7 @@
 <body>
 
     <script>
-        // 1. 【关键】必须先定义数据结构和 add 函数
+        // 定义数据仓库
         let allPosts = [];
         function add(time, text, color, tag) {
             allPosts.push({ time, text, color, tag });
@@ -71,16 +72,17 @@
 
     <div id="main-wrapper">
         <div id="blog-container"></div>
+        
         <div id="pagination">
             <button id="btn-prev" class="page-btn" onclick="changePage(-1)">← Older</button>
             <span id="page-info" style="color:var(--text-dim); font-size: 13px;"></span>
             <button id="btn-next" class="page-btn" onclick="changePage(1)">Newer →</button>
         </div>
-        <footer><p>© 2026. Keep Writing.</p></footer>
+
+        <footer><p>© 2026. Less is More.</p></footer>
     </div>
 
     <script>
-        // 3. 渲染逻辑
         let currentPage = 1;
         const itemsPerPage = 8;
 
@@ -91,10 +93,6 @@
             const start = (currentPage - 1) * itemsPerPage;
             const end = start + itemsPerPage;
             const postsToShow = allPosts.slice(start, end);
-
-            if (postsToShow.length === 0) {
-                container.innerHTML = '<div style="color:gray;">还没有内容哦...</div>';
-            }
 
             postsToShow.forEach(post => {
                 const card = document.createElement('div');
@@ -121,14 +119,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 初始化显示
         window.addEventListener('DOMContentLoaded', () => {
-            // 如果数据不是倒序的，先倒序（让最新的在前面）
-            // 注意：如果你的 data.js 本来就是最新的在最下面，就需要 reverse
             if (allPosts.length > 0) allPosts.reverse(); 
-            
             renderPosts();
-            // 显示页面
             document.getElementById('main-wrapper').style.opacity = '1';
         });
     </script>
